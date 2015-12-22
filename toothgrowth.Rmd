@@ -1,0 +1,53 @@
+---
+title: "Tooth Growth Analysis"
+author: "Paul Askew"
+date: "21 December 2015"
+output: word_document
+---
+##Data Processing and Exploratory Analysis##
+
+This project analyses the toothgrowth dataset supplied with R.  Performing `?Toothgrowth` gives this description:
+
+*The response is the length of odontoblasts (teeth) in each of 10 guinea pigs at each of three dose levels of Vitamin C (0.5, 1, and 2 mg) with each of two delivery methods (orange juice or ascorbic acid).*
+
+First of all we load the data and construct a simple plot to see if there is any demonstrable difference.  It is clear from the plot that there appears to be a difference so it is worthwhile analysing the data further.
+```{r,warning=FALSE, echo = FALSE}
+library(datasets)
+data("ToothGrowth")
+library(ggplot2)
+#ggplot(aes(x=supp, y=len), data=ToothGrowth) + #geom_boxplot(aes(fill=supp))+ 
+#    xlab("Supplement Type") +ylab("Tooth Length (mm)") 
+
+ggplot(aes(x = supp, y = len), data = ToothGrowth) +
+    geom_boxplot(aes(fill = supp)) + facet_wrap(~ dose)+ 
+    xlab("Supplement Type") +ylab("Tooth Length (mm)") 
+summary(ToothGrowth)
+```
+
+
+#Analysis
+
+Looking at the figures, it would appear that there is a difference in toothgrowth depending on the type of supplement given. First of all let's split the data into unique sets depending upon the supplement and the dose.
+
+```{r}
+AA0_5 <- ToothGrowth[1:10, ] # ascorbic acid, 0.5 mg dose
+AA1 <- ToothGrowth[11:20, ] # ascorbic acid, 1 mg dose
+AA2 <- ToothGrowth[21:30, ] # ascorbic acid, 2 mg dose
+OJ0_5 <- ToothGrowth[31:40, ] # orange juice, 0.5 mg dose
+OJ1 <- ToothGrowth[41:50, ] # orange juice, 1 mg dose
+OJ2 <- ToothGrowth[51:60, ] # orange juice, 2 mg dose
+```
+
+Now let's test the null hypothesis, ie there is no difference in effectiveness between each supplement at each dose level.  To do this we will use the t test to compare the average tooth length for each supplement at a given dose.
+
+```{r}
+t.test(OJ0_5$len, AA0_5$len, var.equal = TRUE)$conf # 0.5 mg dose
+t.test(OJ1$len, AA1$len, var.equal = TRUE)$conf # 1 mg dose
+t.test(OJ2$len, AA2$len, var.equal = TRUE)$conf # 2 mg dose
+```
+
+#Conclusions#
+
+From this we can conclude that there is a difference between the two supplements, Orange Juice and Ascorbic Acid, for doses of 0.5mg and 1 mg but there is no discernible difference between doses of 2mg (as the 95% confidence interval passes through 0).  Therefore if longer toothgrowth is required, Orange Juice is the preferred supplement.
+
+This assumes that the populations tested are independent of each other and that the distribution of results is approximately normal.
